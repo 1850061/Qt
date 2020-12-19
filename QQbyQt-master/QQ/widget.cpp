@@ -26,7 +26,7 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     //==========================
     udpSocket = new QUdpSocket(this);
-    port = 45454;
+    port = 10001;
     udpSocket->bind(port,QUdpSocket::ShareAddress|QUdpSocket::ReuseAddressHint);
     connect(udpSocket,SIGNAL(readyRead()),this,SLOT(processPendingDatagrams()));
     sendMessage(NewParticipant);
