@@ -1,2 +1,2 @@
-# QtQQ
-design a QQ by Qt
+# Qt
+关于Qt的学习以及简单的应用
