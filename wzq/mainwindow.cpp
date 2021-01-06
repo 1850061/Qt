@@ -1,3 +1,5 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include <QPainter>
 #include <QTimer>
 #include <QSound>
@@ -8,8 +10,10 @@
 #include <QAction>
 #include <QDebug>
 #include <math.h>
-#include "mainwindow.h"
-
+#include <QWidget>
+#include <QLabel>
+#include <QString>
+#include <QStatusBar>
 // -------全局遍历-------//
 #define CHESS_ONE_SOUND ":/res/sound/chessone.wav"
 #define WIN_SOUND ":/res/sound/win.wav"
@@ -27,8 +31,10 @@ const int kAIDelay = 700; // AI下棋的思考时间
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
-    // 设置棋盘大小
+       //ui->setupUi(this);
+// 设置棋盘大小
     setFixedSize(kBoardMargin * 2 + kBlockSize * kBoardSizeNum, kBoardMargin * 2 + kBlockSize * kBoardSizeNum);
 //    setStyleSheet("background-color:yellow;");
 
@@ -46,21 +52,28 @@ MainWindow::MainWindow(QWidget *parent)
     connect(actionPVE, SIGNAL(triggered()), this, SLOT(initPVEGame()));
     gameMenu->addAction(actionPVE);
 
-    // 开始游戏
+    QStatusBar *status=new QStatusBar(this);
+    this->setStatusBar(status);
+    QLabel *label=new QLabel("成绩：",this);
+    this->score=new QLabel("0",this);
+    status->addWidget(label);
+    status->addWidget(score);
+   // status->hide();
     initGame();
+
 }
 
 MainWindow::~MainWindow()
 {
-    if (game)
+if (game)
     {
         delete game;
         game = nullptr;
     }
+    //delete ui;
 }
-
 void MainWindow::initGame()
-{   
+{
     // 初始化游戏模型
     game = new GameModel;
     initPVPGame();
@@ -111,7 +124,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
         painter.drawRect(kBoardMargin + kBlockSize * clickPosCol - kMarkSize / 2, kBoardMargin + kBlockSize * clickPosRow - kMarkSize / 2, kMarkSize, kMarkSize);
     }
 
-    // 绘制棋子 
+    // 绘制棋子
     for (int i = 0; i < kBoardSizeNum; i++)
         for (int j = 0; j < kBoardSizeNum; j++)
         {
@@ -146,7 +159,14 @@ void MainWindow::paintEvent(QPaintEvent *event)
             else if (game->gameMapVec[clickPosRow][clickPosCol] == -1)
                 str = "black player";
             QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
-
+            if(game->gameType==0||game->gameType==1){
+                //1为BOT
+                QString strScore=this->score->text();
+                int sc=strScore.toInt();
+                sc+=1;
+                strScore=QString::number(sc);
+                this->score->setText(strScore);
+            }
             // 重置游戏状态，否则容易死循环
             if (btnValue == QMessageBox::Ok)
             {
@@ -172,7 +192,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{   
+{
     // 通过鼠标的hover确定落子的标记
     int x = event->x();
     int y = event->y();
@@ -262,4 +282,5 @@ void MainWindow::chessOneByAI()
     QSound::play(CHESS_ONE_SOUND);
     update();
 }
+
 

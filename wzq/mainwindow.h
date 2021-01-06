@@ -2,14 +2,19 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "GameModel.h"
+#include "gamemodel.h"
+#include <QLabel>
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
+QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 protected:
@@ -26,6 +31,8 @@ private:
     int clickPosRow, clickPosCol; // 存储将点击的位置
     void initGame();
     void checkGame(int y, int x);
+    Ui::MainWindow *ui;
+    QLabel *score;
 
 private slots:
     void chessOneByPerson(); // 人执行
@@ -34,5 +41,4 @@ private slots:
     void initPVPGame();
     void initPVEGame();
 };
-
 #endif // MAINWINDOW_H
