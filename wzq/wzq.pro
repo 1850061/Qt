@@ -20,17 +20,20 @@ SOURCES += \
     gamemodel.cpp \
     login.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    rank.cpp
 
 HEADERS += \
     gamemodel.h \
     login.h \
-    mainwindow.h
+    mainwindow.h \
+    rank.h
 
 FORMS += \
     gamemodel.ui \
     login.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    rank.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
