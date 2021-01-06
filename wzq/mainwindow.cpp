@@ -158,15 +158,19 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 str = "white player";
             else if (game->gameMapVec[clickPosRow][clickPosCol] == -1)
                 str = "black player";
-            QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
-            if(game->gameType==0||game->gameType==1){
+
+            //更新分数
+            if(game->gameType==1){
                 //1为BOT
                 QString strScore=this->score->text();
                 int sc=strScore.toInt();
                 sc+=1;
+                if(str=="black player")
+                    sc-=2;
                 strScore=QString::number(sc);
                 this->score->setText(strScore);
             }
+            QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
             // 重置游戏状态，否则容易死循环
             if (btnValue == QMessageBox::Ok)
             {
