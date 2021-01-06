@@ -18,15 +18,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     gamemodel.cpp \
+    login.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     gamemodel.h \
+    login.h \
     mainwindow.h
 
 FORMS += \
     gamemodel.ui \
+    login.ui \
     mainwindow.ui
 
 # Default rules for deployment.

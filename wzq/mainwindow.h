@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "gamemodel.h"
 #include <QLabel>
+#include "login.h"
+#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -16,6 +18,12 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void receiveName(const QString &name){
+        qDebug()<<"receive name:"<<name;
+        this->username=name;
+        qDebug()<<this->username;
+    }
 
 protected:
     // 绘制
@@ -33,6 +41,9 @@ private:
     void checkGame(int y, int x);
     Ui::MainWindow *ui;
     QLabel *score;
+    Login login;
+    QString username;
+
 
 private slots:
     void chessOneByPerson(); // 人执行

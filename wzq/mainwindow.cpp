@@ -52,13 +52,23 @@ MainWindow::MainWindow(QWidget *parent)
     connect(actionPVE, SIGNAL(triggered()), this, SLOT(initPVEGame()));
     gameMenu->addAction(actionPVE);
 
+    QObject::connect(&login,&Login::log,this,&MainWindow::receiveName);
+
+    this->hide();
+    login.show();
+    login.exec();
+    this->show();
+
     QStatusBar *status=new QStatusBar(this);
     this->setStatusBar(status);
-    QLabel *label=new QLabel("成绩：",this);
+    qDebug()<<this->username;
+    QString name=this->username+"的分数：";
+    qDebug()<<name;
+    QLabel *label=new QLabel(name,this);
     this->score=new QLabel("0",this);
     status->addWidget(label);
     status->addWidget(score);
-   // status->hide();
+
     initGame();
 
 }
