@@ -15,6 +15,8 @@ public:
     explicit Rank(QWidget *parent = nullptr);
     ~Rank();
 
+    void updateRank();
+
 private:
     Ui::Rank *ui;
 };

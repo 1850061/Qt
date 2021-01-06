@@ -19,11 +19,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void receiveName(const QString &name){
-        qDebug()<<"receive name:"<<name;
-        this->username=name;
-        qDebug()<<this->username;
-    }
+    void receiveName(const QString &name);
+    void addRank();
 
 protected:
     // 绘制

@@ -16,3 +16,7 @@ Rank::~Rank()
 {
     delete ui;
 }
+
+void Rank::updateRank(){
+
+}

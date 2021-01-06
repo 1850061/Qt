@@ -14,10 +14,12 @@
 #include <QLabel>
 #include <QString>
 #include <QStatusBar>
+#include <QFileDialog>
+#include <QFile>
 // -------全局遍历-------//
-#define CHESS_ONE_SOUND ":/res/sound/chessone.wav"
-#define WIN_SOUND ":/res/sound/win.wav"
-#define LOSE_SOUND ":/res/sound/lose.wav"
+#define CHESS_ONE_SOUND "res/sound/chessone.wav"
+#define WIN_SOUND "res/sound/win.wav"
+#define LOSE_SOUND "res/sound/lose.wav"
 
 const int kBoardMargin = 30; // 棋盘边缘空隙
 const int kRadius = 15; // 棋子半径
@@ -114,6 +116,13 @@ void MainWindow::receiveName(const QString &name){
     qDebug()<<this->username;
 }
 
+void MainWindow::addRank(){
+    QFile file("rank.txt");
+    if(file.open(QIODevice::ReadWrite | QIODevice::Text)){
+        qDebug()<<"成功打开文件";
+    }
+}
+
 void MainWindow::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
@@ -179,7 +188,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 str = "black player";
 
             //更新分数
-            if(game->gameType==1){
+            if(game->gameType==0){
                 //1为BOT
                 QString strScore=this->score->text();
                 int sc=strScore.toInt();
@@ -188,6 +197,8 @@ void MainWindow::paintEvent(QPaintEvent *event)
                     sc-=2;
                 strScore=QString::number(sc);
                 this->score->setText(strScore);
+
+                addRank();
             }
 
             QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
