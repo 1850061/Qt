@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(actionPVE, SIGNAL(triggered()), this, SLOT(initPVEGame()));
     gameMenu->addAction(actionPVE);
 
+    QAction *actionRANK=new QAction("Rank",this);
+    gameMenu->addAction(actionRANK);
+
     QObject::connect(&login,&Login::log,this,&MainWindow::receiveName);
 
     this->hide();
@@ -86,7 +89,7 @@ void MainWindow::initGame()
 {
     // 初始化游戏模型
     game = new GameModel;
-    initPVPGame();
+    initPVEGame();
 }
 
 void MainWindow::initPVPGame()
@@ -273,7 +276,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
             QTimer::singleShot(kAIDelay, this, SLOT(chessOneByAI()));
         }
     }
-
+    //update();
 }
 
 void MainWindow::chessOneByPerson()
