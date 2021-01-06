@@ -108,6 +108,12 @@ void MainWindow::initPVEGame()
     update();
 }
 
+void MainWindow::receiveName(const QString &name){
+    qDebug()<<"receive name:"<<name;
+    this->username=name;
+    qDebug()<<this->username;
+}
+
 void MainWindow::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
@@ -183,6 +189,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 strScore=QString::number(sc);
                 this->score->setText(strScore);
             }
+
             QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
             // 重置游戏状态，否则容易死循环
             if (btnValue == QMessageBox::Ok)
