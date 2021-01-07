@@ -27,6 +27,9 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void cardinalSort(QVector<Qpair<Qstring, int>>& sortedArray, int start, int end, bool isAscend = false);
+    void cardinalSortNoSign(QVector<Qpair<Qstring, int>>& sortedArray, int start, int end, bool isAscend = false);
+
 private:
     Ui::Rank *ui;
     QMap<QString,int> m;

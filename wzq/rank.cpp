@@ -42,6 +42,87 @@ void sortMapByValue(QMap<QString,int>&m,QVector<QPair<QString,int>>& v){
     for(auto curr=m.begin();curr!=m.end();curr++)
         v.push_back(qMakePair(curr.key(),curr.value()));
     std::sort(v.begin(),v.end(),cmp);
+    //cardinalSort(v, 0, v.size() - 1, true);
+}
+
+void Rank::cardinalSort(QVector<Qpair<Qstring, int>>& sortedArray, int start, int end, bool isAscend)
+{
+    if (end < 0)
+        return;
+    if (start > end || start < 0 || end > sortedArray.size())
+    {
+        throw std::logic_error("索引下标错误");
+    }
+    QVector<Qpair<Qstring, int>> negativeSort, positiveSort;
+    for (int i = start; i <= end; i++)
+    {
+        if (sortedArray[i].second >= 0)
+            positiveSort.push_back(sortedArray[i]);
+        else
+            negativeSort.push_back(sortedArray[i]);
+    }
+    cardinalSortNoSign(positiveSort, 0, positiveSort.size() - 1, isAscend);
+    cardinalSortNoSign(negativeSort, 0, negativeSort.size() - 1, !isAscend);
+    sortedArray.clear();
+    if (isAscend)
+    {
+        sortedArray.insert(sortedArray.end(), positiveSort.begin(), positiveSort.end());
+        sortedArray.insert(sortedArray.end(), negativeSort.begin(), negativeSort.end());
+    }
+    else
+    {
+        sortedArray.insert(sortedArray.end(), negativeSort.begin(), negativeSort.end());
+        sortedArray.insert(sortedArray.end(), positiveSort.begin(), positiveSort.end());
+    }
+}
+
+void Rank::cardinalSortNoSign(QVector<Qpair<Qstring, int>>& sortedArray, int start, int end, bool isAscend)
+{
+    if (end < 0)
+        return;
+    if (start > end || start < 0 || end > sortedArray.size())
+    {
+        throw std::logic_error("索引下标错误");
+    }
+    int maxVal = 0;
+    for (int i = start; i <= end; i++)
+    {
+        maxVal = std::max(maxVal, std::abs(sortedArray[i].second));
+    }
+    int exp = 1;
+    QVector<Qpair<Qstring, int>> buf(end - start + 1);
+    while (maxVal >= exp)
+    {
+        QVector<int> cnt(10, 0);
+        for (int i = start; i <= end; i++)
+        {
+            int digit = std::abs((sortedArray[i].second / exp)) % 10;
+            cnt[digit]++;
+        }
+        if (isAscend)
+        {
+            for (int i = 8; i >= 0; i--)
+            {
+                cnt[i] += cnt[i + 1];
+            }
+        }
+        else
+        {
+            for (int i = 1; i < 10; i++)
+            {
+                cnt[i] += cnt[i - 1];
+            }
+        }
+        for (int i = end; i >= start; i--)
+        {
+            int digit = std::abs((sortedArray[i].second / exp)) % 10;
+            buf[cnt[digit] - 1] = sortedArray[i];
+            cnt[digit]--;
+        }
+        copy(buf.begin(), buf.end(), sortedArray.begin() + start);
+        exp *= 10;
+    }
+
 }
 
 
