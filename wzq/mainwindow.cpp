@@ -120,7 +120,6 @@ void MainWindow::initPVEGame()
 }
 
 void MainWindow::rankShow(){
-    this->close();
     this->hide();
     qDebug()<<"隐藏";
     rank.show();
