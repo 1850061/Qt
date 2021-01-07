@@ -6,6 +6,7 @@
 #include <QLabel>
 #include "login.h"
 #include <QDebug>
+#include "rank.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,6 +22,7 @@ public:
 
     void receiveName(const QString &name);
     void addRank();
+    void rankShow();
 
 protected:
     // 绘制
@@ -39,6 +41,7 @@ private:
     Ui::MainWindow *ui;
     QLabel *score;
     Login login;
+    Rank rank;
     QString username;
 
 

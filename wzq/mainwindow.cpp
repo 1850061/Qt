@@ -16,6 +16,7 @@
 #include <QStatusBar>
 #include <QFileDialog>
 #include <QFile>
+#include <QPushButton>
 // -------全局遍历-------//
 #define CHESS_ONE_SOUND "res/sound/chessone.wav"
 #define WIN_SOUND "res/sound/win.wav"
@@ -53,9 +54,17 @@ MainWindow::MainWindow(QWidget *parent)
     QAction *actionPVE = new QAction("Person VS Computer", this);
     connect(actionPVE, SIGNAL(triggered()), this, SLOT(initPVEGame()));
     gameMenu->addAction(actionPVE);
-
+/*
     QAction *actionRANK=new QAction("Rank",this);
+    connect(actionRANK, SIGNAL(triggered()), this, SLOT(rankShow()));
     gameMenu->addAction(actionRANK);
+*/
+    QPushButton *rankBtn=new QPushButton(this);
+    rankBtn->setText("排行榜");
+    rankBtn->move(50,0);
+    rankBtn->setFlat(true);
+    rankBtn->show();
+    connect(rankBtn,&QPushButton::clicked,this,&MainWindow::rankShow);
 
     QObject::connect(&login,&Login::log,this,&MainWindow::receiveName);
 
@@ -91,7 +100,7 @@ void MainWindow::initGame()
 {
     // 初始化游戏模型
     game = new GameModel;
-    initPVEGame();
+    initPVPGame();
 }
 
 void MainWindow::initPVPGame()
@@ -110,6 +119,16 @@ void MainWindow::initPVEGame()
     update();
 }
 
+void MainWindow::rankShow(){
+    this->close();
+    this->hide();
+    qDebug()<<"隐藏";
+    rank.show();
+    rank.updateRank();
+    rank.exec();
+    this->show();
+}
+
 void MainWindow::receiveName(const QString &name){
     qDebug()<<"receive name:"<<name;
     this->username=name;
@@ -117,9 +136,19 @@ void MainWindow::receiveName(const QString &name){
 }
 
 void MainWindow::addRank(){
-    QFile file("rank.txt");
-    if(file.open(QIODevice::ReadWrite | QIODevice::Text)){
+    QFile file("D:\\GitHub\\Qt\\wzq\\rank.txt");
+    if(file.open(QIODevice::WriteOnly | QIODevice::Append)){
         qDebug()<<"成功打开文件";
+        QTextStream out(&file);
+        out<<this->username;
+        out<<'\n';
+        out<<this->score->text();
+        out<<'\n';
+        qDebug()<<score->text();
+        qDebug()<<"成功写入";
+    }
+    else{
+        qDebug()<<"打开文件失败";
     }
 }
 
@@ -188,7 +217,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 str = "black player";
 
             //更新分数
-            if(game->gameType==0){
+            if(game->gameType==0||game->gameType==1){
                 //1为BOT
                 QString strScore=this->score->text();
                 int sc=strScore.toInt();
@@ -198,10 +227,14 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 strScore=QString::number(sc);
                 this->score->setText(strScore);
 
+                //将当前用户名及分数添加进排行榜
                 addRank();
             }
-
-            QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
+            QMessageBox::StandardButton btnValue;
+            if(game->gameType==1)
+                btnValue = QMessageBox::information(this, "congratulations", str + " win!"+" \n您的成绩已更新到排行榜");
+            else
+                 btnValue = QMessageBox::information(this, "congratulations", str + " win!");
             // 重置游戏状态，否则容易死循环
             if (btnValue == QMessageBox::Ok)
             {
