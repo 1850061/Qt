@@ -1,11 +1,19 @@
+#include "gamemodel.h"
+#include "ui_gamemodel.h"
 #include <utility>
 #include <stdlib.h>
 #include <time.h>
-#include "GameModel.h"
 
-GameModel::GameModel()
+GameModel::GameModel(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::GameModel)
 {
+    ui->setupUi(this);
+}
 
+GameModel::~GameModel()
+{
+    delete ui;
 }
 
 void GameModel::startGame(GameType type)

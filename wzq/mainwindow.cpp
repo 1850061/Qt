@@ -1,3 +1,5 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
 #include <QPainter>
 #include <QTimer>
 #include <QSound>
@@ -8,12 +10,17 @@
 #include <QAction>
 #include <QDebug>
 #include <math.h>
-#include "mainwindow.h"
-
+#include <QWidget>
+#include <QLabel>
+#include <QString>
+#include <QStatusBar>
+#include <QFileDialog>
+#include <QFile>
+#include <QPushButton>
 // -------全局遍历-------//
-#define CHESS_ONE_SOUND ":/res/sound/chessone.wav"
-#define WIN_SOUND ":/res/sound/win.wav"
-#define LOSE_SOUND ":/res/sound/lose.wav"
+#define CHESS_ONE_SOUND "res/sound/chessone.wav"
+#define WIN_SOUND "res/sound/win.wav"
+#define LOSE_SOUND "res/sound/lose.wav"
 
 const int kBoardMargin = 30; // 棋盘边缘空隙
 const int kRadius = 15; // 棋子半径
@@ -27,8 +34,10 @@ const int kAIDelay = 700; // AI下棋的思考时间
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
 {
-    // 设置棋盘大小
+       //ui->setupUi(this);
+// 设置棋盘大小
     setFixedSize(kBoardMargin * 2 + kBlockSize * kBoardSizeNum, kBoardMargin * 2 + kBlockSize * kBoardSizeNum);
 //    setStyleSheet("background-color:yellow;");
 
@@ -45,22 +54,50 @@ MainWindow::MainWindow(QWidget *parent)
     QAction *actionPVE = new QAction("Person VS Computer", this);
     connect(actionPVE, SIGNAL(triggered()), this, SLOT(initPVEGame()));
     gameMenu->addAction(actionPVE);
+/*
+    QAction *actionRANK=new QAction("Rank",this);
+    connect(actionRANK, SIGNAL(triggered()), this, SLOT(rankShow()));
+    gameMenu->addAction(actionRANK);
+*/
+    QPushButton *rankBtn=new QPushButton(this);
+    rankBtn->setText("排行榜");
+    rankBtn->move(50,0);
+    rankBtn->setFlat(true);
+    rankBtn->show();
+    connect(rankBtn,&QPushButton::clicked,this,&MainWindow::rankShow);
 
-    // 开始游戏
+    QObject::connect(&login,&Login::log,this,&MainWindow::receiveName);
+
+    this->hide();
+    login.show();
+    login.exec();
+    this->show();
+
+    QStatusBar *status=new QStatusBar(this);
+    this->setStatusBar(status);
+    qDebug()<<this->username;
+    QString name=this->username+"的分数：";
+    qDebug()<<name;
+    QLabel *label=new QLabel(name,this);
+    this->score=new QLabel("0",this);
+    status->addWidget(label);
+    status->addWidget(score);
+
     initGame();
+
 }
 
 MainWindow::~MainWindow()
 {
-    if (game)
+if (game)
     {
         delete game;
         game = nullptr;
     }
+    //delete ui;
 }
-
 void MainWindow::initGame()
-{   
+{
     // 初始化游戏模型
     game = new GameModel;
     initPVPGame();
@@ -80,6 +117,38 @@ void MainWindow::initPVEGame()
     game->gameStatus = PLAYING;
     game->startGame(game_type);
     update();
+}
+
+void MainWindow::rankShow(){
+    this->hide();
+    qDebug()<<"隐藏";
+    rank.show();
+    rank.updateRank();
+    rank.exec();
+    this->show();
+}
+
+void MainWindow::receiveName(const QString &name){
+    qDebug()<<"receive name:"<<name;
+    this->username=name;
+    qDebug()<<this->username;
+}
+
+void MainWindow::addRank(){
+    QFile file("D:\\GitHub\\Qt\\wzq\\rank.txt");
+    if(file.open(QIODevice::WriteOnly | QIODevice::Append)){
+        qDebug()<<"成功打开文件";
+        QTextStream out(&file);
+        out<<this->username;
+        out<<'\n';
+        out<<this->score->text();
+        out<<'\n';
+        qDebug()<<score->text();
+        qDebug()<<"成功写入";
+    }
+    else{
+        qDebug()<<"打开文件失败";
+    }
 }
 
 void MainWindow::paintEvent(QPaintEvent *event)
@@ -111,7 +180,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
         painter.drawRect(kBoardMargin + kBlockSize * clickPosCol - kMarkSize / 2, kBoardMargin + kBlockSize * clickPosRow - kMarkSize / 2, kMarkSize, kMarkSize);
     }
 
-    // 绘制棋子 
+    // 绘制棋子
     for (int i = 0; i < kBoardSizeNum; i++)
         for (int j = 0; j < kBoardSizeNum; j++)
         {
@@ -145,8 +214,26 @@ void MainWindow::paintEvent(QPaintEvent *event)
                 str = "white player";
             else if (game->gameMapVec[clickPosRow][clickPosCol] == -1)
                 str = "black player";
-            QMessageBox::StandardButton btnValue = QMessageBox::information(this, "congratulations", str + " win!");
 
+            //更新分数
+            if(game->gameType==0||game->gameType==1){
+                //1为BOT
+                QString strScore=this->score->text();
+                int sc=strScore.toInt();
+                sc+=1;
+                if(str=="black player")
+                    sc-=2;
+                strScore=QString::number(sc);
+                this->score->setText(strScore);
+
+                //将当前用户名及分数添加进排行榜
+                addRank();
+            }
+            QMessageBox::StandardButton btnValue;
+            if(game->gameType==1)
+                btnValue = QMessageBox::information(this, "congratulations", str + " win!"+" \n您的成绩已更新到排行榜");
+            else
+                 btnValue = QMessageBox::information(this, "congratulations", str + " win!");
             // 重置游戏状态，否则容易死循环
             if (btnValue == QMessageBox::Ok)
             {
@@ -172,7 +259,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event)
-{   
+{
     // 通过鼠标的hover确定落子的标记
     int x = event->x();
     int y = event->y();
@@ -239,7 +326,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
             QTimer::singleShot(kAIDelay, this, SLOT(chessOneByAI()));
         }
     }
-
+    //update();
 }
 
 void MainWindow::chessOneByPerson()
@@ -262,4 +349,5 @@ void MainWindow::chessOneByAI()
     QSound::play(CHESS_ONE_SOUND);
     update();
 }
+
 
